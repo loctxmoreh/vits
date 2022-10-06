@@ -1,58 +1,74 @@
-# VITS: Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech
+# [Moreh] Running on Moreh AI Framework
+![On HAC](https://badgen.net/badge/Moreh-HAC/fail/red)
+![On A100](https://badgen.net/badge/Nvidia-A100/passed/green)
 
-### Jaehyeon Kim, Jungil Kong, and Juhee Son
+## Prepare
 
-In our recent [paper](https://arxiv.org/abs/2106.06103), we propose VITS: Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech.
+### Code
+```bash
+git clone https://github.com/loctxmoreh/vits
+cd vits
+```
 
-Several recent end-to-end text-to-speech (TTS) models enabling single-stage training and parallel sampling have been proposed, but their sample quality does not match that of two-stage TTS systems. In this work, we present a parallel end-to-end TTS method that generates more natural sounding audio than current two-stage models. Our method adopts variational inference augmented with normalizing flows and an adversarial training process, which improves the expressive power of generative modeling. We also propose a stochastic duration predictor to synthesize speech with diverse rhythms from input text. With the uncertainty modeling over latent variables and the stochastic duration predictor, our method expresses the natural one-to-many relationship in which a text input can be spoken in multiple ways with different pitches and rhythms. A subjective human evaluation (mean opinion score, or MOS) on the LJ Speech, a single speaker dataset, shows that our method outperforms the best publicly available TTS systems and achieves a MOS comparable to ground truth.
+### Environment
+Currently failing on HAC VM, so this is for A100 VM.
+```bash
+conda create -n vits python=3.8 -y
+conda activate vits
+```
 
-Visit our [demo](https://jaywalnut310.github.io/vits-demo/index.html) for audio samples.
+#### `torch==1.7.1`
+```bash
+pip install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
+```
 
-We also provide the [pretrained models](https://drive.google.com/drive/folders/1ksarh-cJf3F5eKJjLVWY0X1j1qsQqiS2?usp=sharing).
+#### `torch==1.12.1`
+```bash
+conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+```
 
-** Update note: Thanks to [Rishikesh (ऋषिकेश)](https://github.com/jaywalnut310/vits/issues/1), our interactive TTS demo is now available on [Colab Notebook](https://colab.research.google.com/drive/1CO61pZizDj7en71NQG_aqqKdGaA_SaBf?usp=sharing).
+#### The rest of requirements
+Comment out `torch` and `torchvision` in `requirements.txt` and then:
+```bash
+pip install -r requirements.txt
+```
 
-<table style="width:100%">
-  <tr>
-    <th>VITS at training</th>
-    <th>VITS at inference</th>
-  </tr>
-  <tr>
-    <td><img src="resources/fig_1a.png" alt="VITS at training" height="400"></td>
-    <td><img src="resources/fig_1b.png" alt="VITS at inference" height="400"></td>
-  </tr>
-</table>
-
-
-## Pre-requisites
-0. Python >= 3.6
-0. Clone this repository
-0. Install python requirements. Please refer [requirements.txt](requirements.txt)
-    1. You may need to install espeak first: `apt-get install espeak`
-0. Download datasets
-    1. Download and extract the LJ Speech dataset, then rename or create a link to the dataset folder: `ln -s /path/to/LJSpeech-1.1/wavs DUMMY1`
-    1. For mult-speaker setting, download and extract the VCTK dataset, and downsample wav files to 22050 Hz. Then rename or create a link to the dataset folder: `ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2`
-0. Build Monotonic Alignment Search and run preprocessing if you use your own datasets.
-```sh
-# Cython-version Monotonoic Alignment Search
-cd monotonic_align
-python setup.py build_ext --inplace
-
-# Preprocessing (g2p) for your own datasets. Preprocessed phonemes for LJ Speech and VCTK have been already provided.
-# python preprocess.py --text_index 1 --filelists filelists/ljs_audio_text_train_filelist.txt filelists/ljs_audio_text_val_filelist.txt filelists/ljs_audio_text_test_filelist.txt 
-# python preprocess.py --text_index 2 --filelists filelists/vctk_audio_sid_text_train_filelist.txt filelists/vctk_audio_sid_text_val_filelist.txt filelists/vctk_audio_sid_text_test_filelist.txt
+Installing `espeak`:
+```bash
+sudo apt install espeak
 ```
 
 
-## Training Exmaple
-```sh
-# LJ Speech
+### Data
+Download and extract
+[LJSpeech-1.1](https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2)
+and
+[VCTK Corpus](http://www.udialogue.org/download/VCTK-Corpus.tar.gz)
+
+With LJSpeech, symlink its `wavs/` directory to `./DUMMY1`
+```bash
+ln -s /path/to/LJSpeech-1.1/wavs DUMMY1
+```
+
+With VCTK Corpus, the `.wav` files coming from the dataset link above have
+sampling rate of 48000Hz, while the repo requires sampling rate of 22050Hz.
+Use `downsample_wav.py` script to do this:
+```bash
+./downsample_wav.py /path/to/VCTK-Corpus/wav48 /path/to/new/downsampled_wavs 48000 22050
+```
+Then, symlink this new `downsampled_wavs/` directory to `./DUMMY2`:
+```bash
+ln -s /path/to/new/downsampled_wavs DUMMY2
+```
+
+## Run
+Edit `configs/ljs_base.json` and `configs/vctk_base.json` and change
+`train.epochs` to 2 for testing.
+
+```bash
+# Training with LJSpeech
 python train.py -c configs/ljs_base.json -m ljs_base
 
-# VCTK
+# Training with VCTK Corpus
 python train_ms.py -c configs/vctk_base.json -m vctk_base
 ```
-
-
-## Inference Example
-See [inference.ipynb](inference.ipynb)
