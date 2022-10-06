@@ -1,6 +1,5 @@
 # [Moreh] Running on Moreh AI Framework
-![On HAC](https://badgen.net/badge/Moreh-HAC/fail/red)
-![On A100](https://badgen.net/badge/Nvidia-A100/passed/green)
+![](https://badgen.net/badge/Moreh-HAC/fail/red) ![](https://badgen.net/badge/Nvidia-A100/passed/green)
 
 ## Prepare
 
