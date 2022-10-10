@@ -10,18 +10,24 @@ cd vits
 ```
 
 ### Environment
-Currently failing on HAC VM, so this is for A100 VM.
 ```bash
 conda create -n vits python=3.8 -y
 conda activate vits
 ```
 
 #### `torch==1.7.1`
+On A100 VM:
 ```bash
 pip install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
-#### `torch==1.12.1`
+On HAC VM (Moreh framework version 22.9.2 at the time of writing):
+```bash
+conda install -y torchvision torchaudio numpy protobuf==3.13.0 pytorch==1.7.1 cpuonly -c pytorch
+update-moreh --force --target 22.9.2
+```
+
+#### `torch==1.12.1` on A100 VM
 ```bash
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 ```
