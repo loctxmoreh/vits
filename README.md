@@ -33,7 +33,14 @@ conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 ```
 
 #### The rest of requirements
-Comment out `torch` and `torchvision` in `requirements.txt` and then:
+Install monotonic alignment search:
+```bash
+cd monotonic_align
+python setup.py build_ext --inplace
+cd ..
+```
+
+Then install the rest of dependencies:
 ```bash
 pip install -r requirements.txt
 ```
