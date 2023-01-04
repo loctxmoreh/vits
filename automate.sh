@@ -13,6 +13,9 @@ env_name=$(grep ^name: $env_file | awk '{print $NF}')
 espeak_installed=$(dpkg-query -W --showformat='${Status}\n' espeak | grep "install ok installed")
 [[ "" = "$espeak_installed" ]] && sudo apt install espeak -y
 
+# check for `jq`
+[[ ! -x "$(command -v jq)" ]] && sudo apt install jq -y
+
 conda env create -f $env_file
 conda run -n $env_name update-moreh --force
 pushd monotonic_align
@@ -56,7 +59,12 @@ else
         && ln -s $DATASET_ROOT/VCTK-Corpus/downsampled_wavs DUMMY2
 fi
 
+ljs_epochs=$(jq '.train.epochs' configs/ljs_base.json)
+[[ $ljs_epochs -gt 2 ]] && echo "Num of epochs ${ljs_epochs} too large for testing" && exit 1
 conda run -n $env_name python3 train.py -c configs/ljs_base.json -m ljs_base
+
+vctk_epochs=$(jq '.train.epochs' configs/vctk_base.json)
+[[ $vctk_epochs -gt 2 ]] && echo "Num of epochs ${vctk_epochs} too large for testing" && exit 1
 conda run -n $env_name python3 train_ms.py -c configs/vctk_base.json -m vctk_base
 
 conda env remove -n $env_name
