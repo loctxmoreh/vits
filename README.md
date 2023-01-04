@@ -36,6 +36,7 @@ conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 Install monotonic alignment search:
 ```bash
 cd monotonic_align
+mkdir monotonic_align  # yes, two level of the same dir name
 python setup.py build_ext --inplace
 cd ..
 ```
